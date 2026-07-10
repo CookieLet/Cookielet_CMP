@@ -15,14 +15,8 @@
 homepage: "https://www.cookielet.com"
 documentation: "https://www.cookielet.com/documentation"
 versions:
-  - sha: 820417fb83276726f3a28ac7cbf852c478aa96e8
-    changeNotes: Version data
-
-  - sha: 4ffc013265c84222bf8a0e8ef49c57dde9446ab4
-    changeNotes: Version data
-
-  - sha: 890ad6fd25bfa1bc6a022e3e9fc3912995012a54
-    changeNotes:  updated
+  - sha: 397e6fd8320ad8604a2fccc3ac843e883030d744
+    changeNotes: url update in metadata.yml
 
   - sha: 7fb084cb59d8c9d44e61c3d22e4f4de675bb3869
     changeNotes:  updated
