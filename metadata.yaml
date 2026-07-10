@@ -15,5 +15,11 @@
 homepage: "https://www.example.com"
 documentation: "https://www.example.com/documentation"
 versions:
+  - sha: 890ad6fd25bfa1bc6a022e3e9fc3912995012a54
+    changeNotes:  updated
+
   - sha: 7fb084cb59d8c9d44e61c3d22e4f4de675bb3869
-    changeNotes:  Version 2
+    changeNotes:  updated
+
+  - sha: 49eb3c16324aa08f68bdca1436139759fcfb584f
+    changeNotes: Initial commit.
