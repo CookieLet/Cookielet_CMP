@@ -15,6 +15,9 @@
 homepage: "https://www.cookielet.com"
 documentation: "https://www.cookielet.com/documentation"
 versions:
+  - sha: 990ccb3f6029e66955aba62fb1ce14695e7ee3d9
+    changeNotes: updated with prod url
+
   - sha: 397e6fd8320ad8604a2fccc3ac843e883030d744
     changeNotes: url update in metadata.yml
 
