@@ -248,7 +248,7 @@ ___TEMPLATE_PARAMETERS___
     "name": "cdnHost",
     "displayName": "CDN Host",
     "simpleValueType": true,
-    "defaultValue": "https://cdn.cookiedev.info"
+    "defaultValue": "https://cdn.cookielet.com"
   }
 ]
 
@@ -266,7 +266,7 @@ ___SANDBOXED_JS_FOR_WEB_TEMPLATE___
 //   2. Injects the Cookielet consent.js from the CDN. URL pattern matches
 //      BannerInstallPage.jsx's manual snippet:
 //         {cdn_host}/{account_id}/{site_id}/consent.js
-//      (cdn_host = POPUP_CND_HOST = https://cdn.cookiedev.info)
+//      (cdn_host = POPUP_CND_HOST = https://cdn.cookielet.com)
 //
 // WHY THERE IS NO COOKIE READING / updateConsentState HERE
 //   The live consent.js OWNS Google Consent Mode. It calls
@@ -287,9 +287,9 @@ const encodeUri = require("encodeUri");
 const gtagSet = require("gtagSet");
 
 // --- Project config -------------------------------------------------------
-// CDN host = POPUP_CND_HOST (https://cdn.cookiedev.info). Strip trailing slash.
-//const CDN_HOST = (data.cdnHost || "https://cdn.cookiedev.info").replace(/\/+$/, "");
-let CDN_HOST = data.cdnHost || "https://cdn.cookiedev.info";
+// CDN host = POPUP_CND_HOST (https://cdn.cookielet.com). Strip trailing slash.
+//const CDN_HOST = (data.cdnHost || "https://cdn.cookielet.com").replace(/\/+$/, "");
+let CDN_HOST = data.cdnHost || "https://cdn.cookielet.com";
 while (CDN_HOST.charAt(CDN_HOST.length - 1) === "/") {
   CDN_HOST = CDN_HOST.substring(0, CDN_HOST.length - 1);
 }
@@ -404,7 +404,7 @@ ___WEB_PERMISSIONS___
             "listItem": [
               {
                 "type": 1,
-                "string": "https://cdn.cookiedev.info/*"
+                "string": "https://cdn.cookielet.com/*"
               }
             ]
           }
@@ -667,7 +667,7 @@ scenarios:
       accountId: "fd5a0477-1de3-48d5-909f-7744bf00a36b",
       siteId: "8c4e0298-8bf6-4a7d-b129-233bb506d1fb",
        // optional:
-      // cdnHost: "https://cdn.cookiedev.info",
+      // cdnHost: "https://cdn.cookielet.com",
       // regionSettings: [],
     };
 
