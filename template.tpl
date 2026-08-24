@@ -306,7 +306,7 @@ function setConsentInitStates(consentData) {
 gtagSet({
   ads_data_redaction: !!data.adsRedaction,
   url_passthrough: !!data.urlPassThrough,
-  "developer_id.dY2Q2ZW": true, // TODO: swap for Cookielet's own Google developer_id if/when issued
+  "developer_id.dNWNkMD": true, // TODO: swap for Cookielet's own Google developer_id if/when issued
 });
 
 // --- 1) Default (pre-consent) state, optionally per region ----------------
@@ -378,7 +378,7 @@ ___WEB_PERMISSIONS___
               },
               {
                 "type": 1,
-                "string": "developer_id.dY2Q2ZW"
+                "string": "developer_id.dNWNkMD"
               }
             ]
           }
