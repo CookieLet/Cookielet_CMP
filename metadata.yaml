@@ -15,6 +15,10 @@
 homepage: "https://www.cookielet.com"
 documentation: "https://www.cookielet.com/documentation"
 versions:
+
+  - sha: 5e579f417065291a39ee66bc8587b10cfdbbf436
+    changeNotes: updated developer id
+
   - sha: 990ccb3f6029e66955aba62fb1ce14695e7ee3d9
     changeNotes: updated with prod url
 
