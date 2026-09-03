@@ -14,7 +14,6 @@ ___INFO___
   "version": 1,
   "securityGroups": [],
   "displayName": "Cookielet CMP",
-  "categories": ["UTILITY"],
   "brand": {
     "id": "brand_dummy",
     "displayName": "",
@@ -212,22 +211,18 @@ ___TEMPLATE_PARAMETERS___
         "valueUnit": "milliseconds"
       },
       {
-        "type": "SELECT",
+        "type": "CHECKBOX",
         "name": "adsRedaction",
-        "displayName": "Ads Data Redaction",
-        "macrosInSelect": true,
-        "selectItems": [],
+        "checkboxText": "Ads Data Redaction",
         "simpleValueType": true,
-        "help": "Enable ads data redaction"
+        "help": "When this option is checked and the default consent state of \"Advertisement Cookies\" is disabled, Google\u0027s advertising tags will remove all advertising identifiers from the requests, and route the traffic through domains that do not use cookies."
       },
       {
-        "type": "SELECT",
+        "type": "CHECKBOX",
         "name": "urlPassThrough",
-        "displayName": "URL PassThrough",
-        "macrosInSelect": true,
-        "selectItems": [],
+        "checkboxText": "URL Pass Through",
         "simpleValueType": true,
-        "help": "Enable URL passthrough"
+        "help": ""
       }
     ]
   },
@@ -255,44 +250,37 @@ ___TEMPLATE_PARAMETERS___
 
 ___SANDBOXED_JS_FOR_WEB_TEMPLATE___
 
-// ===========================================================================
-// Cookielet CMP — GTM Custom Template (sandboxed JavaScript)
-// Project: cookielet_admin
-//
-// WHAT THIS DOES
-//   1. Sets the Google Consent Mode DEFAULT to denied (region-aware) as early
-//      as possible — attach this tag to the "Consent Initialization - All
-//      Pages" trigger so the default lands before any other tag fires.
-//   2. Injects the Cookielet consent.js from the CDN. URL pattern matches
-//      BannerInstallPage.jsx's manual snippet:
-//         {cdn_host}/{account_id}/{site_id}/consent.js
-//      (cdn_host = POPUP_CND_HOST = https://cdn.cookielet.com)
-//
-// WHY THERE IS NO COOKIE READING / updateConsentState HERE
-//   The live consent.js OWNS Google Consent Mode. It calls
-//   gtag('consent','default',...) and gtag('consent','update',...) itself,
-//   maps categories internally, and RE-APPLIES the visitor's saved consent on
-//   every page load. Per-category consent is stored in localStorage
-//   (cmp_consent_meta) — NOT in the cookie. The cookie "cmp_consent" only holds
-//   {status, regime, ts, gpc}. GTM sandboxed templates can't read localStorage,
-//   so any attempt to "restore" consent here would (a) find no category data
-//   and wrongly deny everything, and (b) collide with the CMP's own updates.
-//   => The template only seeds the default and loads the script.
-// ===========================================================================
+// TEMPORARY DIAGNOSTIC BUILD — every step logs to the Console panel.
+// Replace with the clean code once the failing step is identified.
+
+const log = require("logToConsole");
+log("CMP 01: code entered");
 
 const injectScript = require("injectScript");
 const queryPermission = require("queryPermission");
 const setDefaultConsentState = require("setDefaultConsentState");
 const encodeUri = require("encodeUri");
 const gtagSet = require("gtagSet");
+log("CMP 02: base requires ok");
 
-// --- Project config -------------------------------------------------------
-// CDN host = POPUP_CND_HOST (https://cdn.cookielet.com). Strip trailing slash.
-//const CDN_HOST = (data.cdnHost || "https://cdn.cookielet.com").replace(/\/+$/, "");
+const getCookieValues = require("getCookieValues");
+const updateConsentState = require("updateConsentState");
+const JSON = require("JSON");
+log("CMP 03: cookie/consent/JSON requires ok");
+
+log("CMP 04: data.accountId =", data.accountId);
+log("CMP 05: data.siteId =", data.siteId);
+log("CMP 06: data.cdnHost =", data.cdnHost);
+log("CMP 07: data.waitForTime =", data.waitForTime);
+log("CMP 08: data.adsRedaction =", data.adsRedaction);
+log("CMP 09: data.urlPassThrough =", data.urlPassThrough);
+log("CMP 10: data.regionSettings =", data.regionSettings);
+
 let CDN_HOST = data.cdnHost || "https://cdn.cookielet.com";
 while (CDN_HOST.charAt(CDN_HOST.length - 1) === "/") {
   CDN_HOST = CDN_HOST.substring(0, CDN_HOST.length - 1);
 }
+log("CMP 11: CDN_HOST =", CDN_HOST);
 
 let setDefaultSetting = true;
 const regionSettings = data.regionSettings || [];
@@ -303,13 +291,14 @@ function setConsentInitStates(consentData) {
   setDefaultConsentState(consentData);
 }
 
+log("CMP 12: calling gtagSet");
 gtagSet({
   ads_data_redaction: !!data.adsRedaction,
   url_passthrough: !!data.urlPassThrough,
-  "developer_id.dY2Q2ZW": true, // TODO: swap for Cookielet's own Google developer_id if/when issued
+  "developer_id.dNWNkMD": true,
 });
+log("CMP 13: gtagSet returned");
 
-// --- 1) Default (pre-consent) state, optionally per region ----------------
 for (let index = 0; index < regionSettings.length; index++) {
   const regionSetting = regionSettings[index];
   const consentRegionData = {
@@ -321,7 +310,7 @@ for (let index = 0; index < regionSettings.length; index++) {
     ad_user_data: regionSetting.adUserData,
     ad_personalization: regionSetting.adPersonal,
   };
-  const regionsToSetFor = regionSetting.regions
+  const regionsToSetFor = (regionSetting.regions || "")
     .split(",")
     .map(function (region) { return region.trim(); })
     .filter(function (region) { return region; });
@@ -329,9 +318,11 @@ for (let index = 0; index < regionSettings.length; index++) {
     consentRegionData.region = regionsToSetFor;
   else setDefaultSetting = false;
   setConsentInitStates(consentRegionData);
+  log("CMP 14: region row", index, "applied");
 }
 
 if (setDefaultSetting) {
+  log("CMP 15: seeding catch-all denied default");
   setConsentInitStates({
     ad_storage: "denied",
     analytics_storage: "denied",
@@ -342,15 +333,57 @@ if (setDefaultSetting) {
     ad_personalization: "denied",
   });
 }
+log("CMP 16: defaults done");
 
-// --- 2) Inject the Cookielet consent.js -----------------------------------
-// consent.js renders the banner AND performs every gtag('consent','update').
-// data.accountId / data.siteId map to the admin's account_id / site_id.
+log("CMP 17: calling getCookieValues");
+const consentCookie = getCookieValues("cmp_consent")[0];
+log("CMP 18: cookie =", consentCookie);
+
+if (consentCookie) {
+  const saved = JSON.parse(consentCookie);
+  const status = saved ? saved.status : undefined;
+  log("CMP 19: status =", status);
+  if (status === "accept_all") {
+    updateConsentState({
+      ad_storage: "granted",
+      analytics_storage: "granted",
+      functionality_storage: "granted",
+      personalization_storage: "granted",
+      security_storage: "granted",
+      ad_user_data: "granted",
+      ad_personalization: "granted",
+    });
+    log("CMP 20: granted all");
+  } else if (status === "deny_all") {
+    updateConsentState({
+      ad_storage: "denied",
+      analytics_storage: "denied",
+      functionality_storage: "denied",
+      personalization_storage: "denied",
+      security_storage: "granted",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    });
+    log("CMP 21: denied all");
+  }
+}
+log("CMP 22: cookie block done");
+
 const scriptURL =
   CDN_HOST + "/" + encodeUri(data.accountId + "/" + data.siteId + "/consent.js");
+log("CMP 23: scriptURL =", scriptURL);
 
-if (!queryPermission("inject_script", scriptURL)) return data.gtmOnFailure();
+const allowed = queryPermission("inject_script", scriptURL);
+log("CMP 24: inject_script permitted =", allowed);
+
+if (!allowed) {
+  log("CMP 25: PERMISSION DENIED -> gtmOnFailure");
+  return data.gtmOnFailure();
+}
+
+log("CMP 26: calling injectScript");
 injectScript(scriptURL, data.gtmOnSuccess, data.gtmOnFailure);
+log("CMP 27: injectScript returned");
 
 
 ___WEB_PERMISSIONS___
@@ -378,7 +411,7 @@ ___WEB_PERMISSIONS___
               },
               {
                 "type": 1,
-                "string": "developer_id.dY2Q2ZW"
+                "string": "developer_id.dNWNkMD"
               }
             ]
           }
@@ -644,6 +677,37 @@ ___WEB_PERMISSIONS___
                     "boolean": true
                   }
                 ]
+              },
+              {
+                "type": 3,
+                "mapKey": [
+                  {
+                    "type": 1,
+                    "string": "consentType"
+                  },
+                  {
+                    "type": 1,
+                    "string": "read"
+                  },
+                  {
+                    "type": 1,
+                    "string": "write"
+                  }
+                ],
+                "mapValue": [
+                  {
+                    "type": 1,
+                    "string": "write_data_layer"
+                  },
+                  {
+                    "type": 8,
+                    "boolean": false
+                  },
+                  {
+                    "type": 8,
+                    "boolean": true
+                  }
+                ]
               }
             ]
           }
@@ -652,6 +716,57 @@ ___WEB_PERMISSIONS___
     },
     "clientAnnotations": {
       "isEditedByUser": true
+    },
+    "isRequired": true
+  },
+  {
+    "instance": {
+      "key": {
+        "publicId": "get_cookies",
+        "versionId": "1"
+      },
+      "param": [
+        {
+          "key": "cookieAccess",
+          "value": {
+            "type": 1,
+            "string": "specific"
+          }
+        },
+        {
+          "key": "cookieNames",
+          "value": {
+            "type": 2,
+            "listItem": [
+              {
+                "type": 1,
+                "string": "cmp_consent"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "clientAnnotations": {
+      "isEditedByUser": true
+    },
+    "isRequired": true
+  },
+  {
+    "instance": {
+      "key": {
+        "publicId": "logging",
+        "versionId": "1"
+      },
+      "param": [
+        {
+          "key": "environments",
+          "value": {
+            "type": 1,
+            "string": "debug"
+          }
+        }
+      ]
     },
     "isRequired": true
   }
@@ -667,7 +782,7 @@ scenarios:
       accountId: "fd5a0477-1de3-48d5-909f-7744bf00a36b",
       siteId: "8c4e0298-8bf6-4a7d-b129-233bb506d1fb",
        // optional:
-      // cdnHost: "https://cdn.cookielet.com",
+       //cdnHost: "https://cdn.cookielet.com",
       // regionSettings: [],
     };
 
@@ -680,10 +795,11 @@ scenarios:
 
     // Verify that the tag finished successfully.
     assertApi('gtmOnSuccess').wasCalled();
+setup: ''
 
 
 ___NOTES___
 
-Created on 06/07/2026, 10:13:41
+Created on 8/29/2026, 10:23:43 AM
 
 
