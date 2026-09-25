@@ -15,5 +15,9 @@
 homepage: "https://www.cookielet.com"
 documentation: "https://www.cookielet.com/documentation"
 versions:
+<<<<<<< HEAD
   - sha: fb81bace7c1991f154fa943f0d25f1f08f5dea46
+=======
+  - sha: f3bfb50761fee2fc9c95f24f836a7707adcc560e
+>>>>>>> 8dedb40a029eaecc1d716aafbb09e9fdf1ce3f49
     changeNotes: Initial release.

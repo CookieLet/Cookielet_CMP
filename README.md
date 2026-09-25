@@ -9,6 +9,7 @@ Consent Mode v2.
 
 On every page where it fires, the tag:
 
+<<<<<<< HEAD
 1. **Sets Google tag options** with `gtagSet`:
    - `developer_id.dNWNkMD` — Cookielet's Google developer ID (always set)
    - `ads_data_redaction` — from the **Ads Data Redaction** checkbox
@@ -40,6 +41,40 @@ On every page where it fires, the tag:
 | **Other Settings → Ads Data Redaction** | No | Off | When checked and *Advertisement Cookies* is disabled, Google's advertising tags remove advertising identifiers from requests and route traffic through cookieless domains. |
 | **Other Settings → URL Pass Through** | No | Off | When checked and advertising consent is denied, Google tags pass ad-click information (such as gclid, dclid, gbraid, wbraid) to later pages through URL parameters instead of cookies. |
 | **Account Id** | Yes | — | Your Cookielet account ID |
+=======
+- Attach the tag to the **Consent Initialization – All Pages** trigger. That
+  guarantees the default consent state is set before any other tag fires.
+- The template calls `setDefaultConsentState(...)` for each row in the
+  **Default Consent Settings** table. A row whose *Regions* is `All` applies a
+  global fallback (`security_storage` granted, everything else denied); rows with
+  specific regions apply per-region defaults.
+- It sets `developer_id.dNWNkMD` (Cookielet's Google developer ID) along with
+  the **Ads Data Redaction** and **URL Pass Through** options.
+- If the visitor has already chosen **Accept all** or **Deny all**, the
+  template reads that choice from the `cmp_consent` cookie and immediately
+  calls `updateConsentState(...)`, so returning visitors' tags fire with the
+  right consent without waiting for the banner script to load.
+- It then injects the script:
+
+  ```
+  https://cdn.cookielet.com/{Account Id}/{Site Id}/consent.js
+  ```
+
+- After that, **`consent.js` is in charge.** It renders the banner, calls
+  `gtag('consent','update',...)` when the visitor chooses, and re-applies
+  per-category choices (stored in `localStorage` as `cmp_consent_meta`, which
+  GTM's sandbox cannot read) on each page load.
+
+## Configuration
+
+| Field | Required | Default | Purpose |
+|-------|----------|---------|---------|
+| **Site Id** | ✅ | — | The Cookielet website id |
+| **Account Id** | ✅ | — | The Cookielet account id |
+| **Wait For Time** | | `2000` ms | How long tags wait for a consent update before firing; `0` disables waiting |
+| **Ads Data Redaction** | | off | Sets `ads_data_redaction` |
+| **URL PassThrough** | | off | Sets `url_passthrough` |
+>>>>>>> 8dedb40a029eaecc1d716aafbb09e9fdf1ce3f49
 
 ### Default Consent Settings
 
