@@ -16,18 +16,22 @@ to Google Tag Manager. It does two things on every page:
   **Default Consent Settings** table. A row whose *Regions* is `All` applies a
   global fallback (`security_storage` granted, everything else denied); rows with
   specific regions apply per-region defaults.
+- It sets `developer_id.dNWNkMD` (Cookielet's Google developer ID) along with
+  the **Ads Data Redaction** and **URL Pass Through** options.
+- If the visitor has already chosen **Accept all** or **Deny all**, the
+  template reads that choice from the `cmp_consent` cookie and immediately
+  calls `updateConsentState(...)`, so returning visitors' tags fire with the
+  right consent without waiting for the banner script to load.
 - It then injects the script:
 
   ```
-  {CDN Host}/{Account Id}/{Site Id}/consent.js
+  https://cdn.cookielet.com/{Account Id}/{Site Id}/consent.js
   ```
 
 - After that, **`consent.js` is in charge.** It renders the banner, calls
-  `gtag('consent','update',...)` when the visitor chooses, and re-applies their
-  saved consent on each page load. The template deliberately does **no** cookie
-  reading or consent restoring — per-category consent lives in `localStorage`
-  (`cmp_consent_meta`), which GTM's sandbox cannot read, so doing so here would
-  wrongly deny everything and collide with the CMP's own updates.
+  `gtag('consent','update',...)` when the visitor chooses, and re-applies
+  per-category choices (stored in `localStorage` as `cmp_consent_meta`, which
+  GTM's sandbox cannot read) on each page load.
 
 ## Configuration
 
@@ -35,8 +39,7 @@ to Google Tag Manager. It does two things on every page:
 |-------|----------|---------|---------|
 | **Site Id** | ✅ | — | The Cookielet website id |
 | **Account Id** | ✅ | — | The Cookielet account id |
-| **CDN Host** | | `https://cdn.cookielet.com` | Where `consent.js` is served from |
-| **Wait For Time** | | `2000` ms | How long tags wait for a consent update before firing |
+| **Wait For Time** | | `2000` ms | How long tags wait for a consent update before firing; `0` disables waiting |
 | **Ads Data Redaction** | | off | Sets `ads_data_redaction` |
 | **URL PassThrough** | | off | Sets `url_passthrough` |
 
