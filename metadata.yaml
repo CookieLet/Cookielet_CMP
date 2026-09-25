@@ -15,27 +15,5 @@
 homepage: "https://www.cookielet.com"
 documentation: "https://www.cookielet.com/documentation"
 versions:
-
-  - sha: b336a307a4529d908730d3e63503c2b9e6e9c954
-    changeNotes: updated readme
-
-  - sha: 584bc56ebac1a7d3963d36f1401aaac5a7c09dc0
-    changeNotes: updated
-
-  - sha: aeb82a26e3b115c3843bd584b518df8622d1f919
-    changeNotes: updated
-
-  - sha: 5e579f417065291a39ee66bc8587b10cfdbbf436
-    changeNotes: updated developer id
-
-  - sha: 990ccb3f6029e66955aba62fb1ce14695e7ee3d9
-    changeNotes: updated with prod url
-
-  - sha: 397e6fd8320ad8604a2fccc3ac843e883030d744
-    changeNotes: url update in metadata.yml
-
-  - sha: 7fb084cb59d8c9d44e61c3d22e4f4de675bb3869
-    changeNotes:  updated
-
-  - sha: 49eb3c16324aa08f68bdca1436139759fcfb584f
-    changeNotes: Initial commit.
+  - sha: f3bfb50761fee2fc9c95f24f836a7707adcc560e
+    changeNotes: Initial release.
