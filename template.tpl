@@ -723,7 +723,7 @@ scenarios:
       security_storage: 'granted',
       ad_user_data: 'denied',
       ad_personalization: 'denied',
-      wait_for_update: 2000
+      wait_for_update: 500
     });
     assertApi('injectScript').wasCalled();
     assertApi('gtmOnSuccess').wasCalled();
