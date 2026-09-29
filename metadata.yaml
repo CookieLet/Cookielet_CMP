@@ -15,6 +15,9 @@
 homepage: "https://www.cookielet.com"
 documentation: "https://www.cookielet.com/documentation"
 versions:
+  - sha: 62b2070de3c1a886a81b0ea7b005eb03cbb8b455
+    changeNotes: update wait_for_update
+
   - sha: 72b845a9f7e7be88bc4566d1fe06c7836c396195
     changeNotes: updated the template file
 
