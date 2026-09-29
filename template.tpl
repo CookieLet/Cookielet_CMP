@@ -203,7 +203,7 @@ ___TEMPLATE_PARAMETERS___
         "displayName": "Wait For Time",
         "simpleValueType": true,
         "help": "Milliseconds that Google tags wait for the visitor\u0027s consent choice before firing. Set to 0 to disable waiting. Recommended: 500–2000.",
-        "defaultValue": 2000,
+        "defaultValue": 500,
         "valueValidators": [
           {
             "type": "NON_NEGATIVE_NUMBER"
@@ -723,7 +723,7 @@ scenarios:
       security_storage: 'granted',
       ad_user_data: 'denied',
       ad_personalization: 'denied',
-      wait_for_update: 500
+      wait_for_update: 2000
     });
     assertApi('injectScript').wasCalled();
     assertApi('gtmOnSuccess').wasCalled();
